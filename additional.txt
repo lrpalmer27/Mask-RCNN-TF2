@@ -1,6 +1,0 @@
-astunparse>=1.6.0
-flatbuffers>=2.0
-libclang>=13.0.0
-keras<2.12,>=2.11.0
-tensorboard<2.1.0,>=2.0.0
-tensorflow-estimator<2.1.0,>=2.0.0

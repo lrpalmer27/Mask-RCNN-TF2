@@ -273,6 +273,8 @@ You can also [join our team](https://matterport.com/careers/) and help us build 
 ## Requirements
 Python 3 (tested on Python 3.7.3), TensorFlow 2.0.0, Keras 2.2.4-tf and other common packages listed in `requirements.txt`.
 
+Logan has this tested on Python 3.7.2, pip18.1 and the dependency versions in "requirements_worksforLogan.txt' file.
+
 ### MS COCO Requirements:
 To train or test on MS COCO, you'll also need:
 * pycocotools (installation instructions below)
