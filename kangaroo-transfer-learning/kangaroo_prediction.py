@@ -4,6 +4,7 @@ import mrcnn.model
 import mrcnn.visualize
 import cv2
 import os
+import random
 
 # load the class label names from disk, one label per line
 # CLASS_NAMES = open("coco_labels.txt").read().strip().split("\n")
@@ -32,7 +33,8 @@ model.load_weights(filepath="Kangaro_mask_rcnn_trained.h5",
                    by_name=True)
 
 # load the input image, convert it from BGR to RGB channel
-image = cv2.imread("sample2.jpg")
+Test_Dir=os.listdir("kangaroo\\Test_kangaroo_images") #lists the kangaroo test image dir
+image = cv2.imread("kangaroo\\Test_kangaroo_images\\"+Test_Dir[random.randint(0,len(Test_Dir))]) #picks a random image in the kangaroo test image dir.
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 # Perform a forward pass of the network to obtain the results
