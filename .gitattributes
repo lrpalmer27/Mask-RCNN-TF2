@@ -1,0 +1,10 @@
+/ICE_SHIP/data/videos/ filter=lfs diff=lfs merge=lfs -text
+/ICE_SHIP/data/videos filter=lfs diff=lfs merge=lfs -text
+C:/Users/logan/Desktop/MEng/Mask-RCNN-TF2/ICE_SHIP/data/videos filter=lfs diff=lfs merge=lfs -text
+C:/Users/logan/Desktop/MEng/Mask-RCNN-TF2/ICE_SHIP/data/videos/100m_dist_9ths_1p2kts_0p4m_0deg_001_c_overhead.mkv filter=lfs diff=lfs merge=lfs -text
+C:/Users/logan/Desktop/MEng/Mask-RCNN-TF2/ICE_SHIP/data/videos/100m_9ths_1p0kts_0p4m_0deg_002_c_overhead.mkv filter=lfs diff=lfs merge=lfs -text
+C:/Users/logan/Desktop/MEng/Mask-RCNN-TF2/ICE_SHIP/data/videos/100m_dist_9ths_1p2kts_0p4m_0deg_001_c_overhead.mkv filter=lfs diff=lfs merge=lfs -text
+C:/Users/logan/Desktop/MEng/Mask-RCNN-TF2/ICE_SHIP/data/videos/100m_9ths_1p0kts_0p4m_0deg_002_c_overhead.mkv filter=lfs diff=lfs merge=lfs -text
+ICE_SHIP/data/videos/100m_9ths_1p0kts_0p4m_0deg_002_c_overhead.mkv filter=lfs diff=lfs merge=lfs -text
+ICE_SHIP/data/videos/100m_dist_9ths_1p2kts_0p4m_0deg_001_c_overhead.mkv filter=lfs diff=lfs merge=lfs -text
+*.mkv filter=lfs diff=lfs merge=lfs -text
