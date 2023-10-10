@@ -95,6 +95,8 @@ mrcnn.visualize.display_instances(image=image,
 # Transfer Learning
 
 The **kangaroo-transfer-learning** directory has both the data and code for training and testing the Mask R-CNN model using TensorFlow 2.0. Here is the content of the directory:
+Note: If running on a Windows OS, watch: https://www.youtube.com/watch?v=Fu_km7FXyaU
+This will deal with the "//" file path exception encountered in the mrcnn.egg file, although the root cause of this error has been addressed in the model file of this repo.
 
 ```
 kangaroo-transfer-learning:

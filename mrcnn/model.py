@@ -2276,7 +2276,7 @@ class MaskRCNN():
         # Directory for training logs
 #        self.log_dir = os.path.join(self.model_dir, "{}{:%Y%m%dT%H%M}".format(
 #            self.config.NAME.lower(), now))
-        self.log_dir = "//logdir//train"
+        self.log_dir = "\\logdir\\train"
 
         # Path to save after each epoch. Include placeholders that get filled by Keras.
         self.checkpoint_path = os.path.join(self.log_dir, "mask_rcnn_{}_*epoch*.h5".format(
