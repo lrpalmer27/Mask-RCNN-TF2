@@ -35,9 +35,12 @@ import json
 import datetime
 import numpy as np
 import skimage.draw
+import warnings
+# warnings.filterwarnings('ignore')
 
 # Root directory of the project
-ROOT_DIR = os.path.abspath("../../")
+# ROOT_DIR = os.path.abspath("../../")
+ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
@@ -79,8 +82,10 @@ class IceConfig(Config):
     #since our images are huge
     # IMAGE_MAX_DIM=6096
     # IMAGE_MIN_DIM=1200
-    IMAGE_MAX_DIM=4096
-    IMAGE_MIN_DIM=2730
+    # IMAGE_MAX_DIM=4096
+    # IMAGE_MIN_DIM=2730
+    IMAGE_MAX_DIM=1024
+    IMAGE_MIN_DIM=1024
 
 
 ############################################################
@@ -144,13 +149,22 @@ class IceDataset(utils.Dataset):
             image_path = os.path.join(dataset_dir, a['filename'])
             image = skimage.io.imread(image_path)
             height, width = image.shape[:2]
+            
+            ## Not very pythonic way to do this, but it works.
+            ids= [item.get('name') for item in self.class_info]
+            class_ids=[]
+
+            for l in class_labels:
+                for id in range(len(ids)):
+                    if l==ids[id]:
+                        class_ids.append(id)
 
             self.add_image(
                 "Trial",
                 image_id=a['filename'],  # use file name as a unique image id
                 path=image_path,
                 width=width, height=height,
-                polygons=polygons, class_labels=class_labels)
+                polygons=polygons, class_ids=class_ids)
 
     def load_mask(self, image_id):
         """Generate instance masks for an image.
@@ -161,7 +175,7 @@ class IceDataset(utils.Dataset):
         """
         # If not a Ice dataset image, delegate to parent class.
         image_info = self.image_info[image_id]
-        if image_info["source"] != "Ice":
+        if image_info["source"] != "Trial": #"Trial" needs to match the source name defined above"
             return super(self.__class__, self).load_mask(image_id)
 
         # Convert polygons to a bitmap mask of shape
@@ -179,6 +193,7 @@ class IceDataset(utils.Dataset):
         # return mask.astype(bool), np.ones([mask.shape[-1]], dtype=np.int32)
         
         # Return mask, and array of class IDs of each instance.
+        # info['class_labels'] #doesnt work
         return mask, info['class_ids']
 
     def image_reference(self, image_id):
@@ -210,7 +225,7 @@ def train(model):
     print("Training network heads")
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=30,
+                epochs=2,
                 layers='heads')
 
 
@@ -387,10 +402,10 @@ def train(model):
 if __name__ == '__main__':
     config = IceConfig()
     config.display()
-    model = modellib.MaskRCNN(mode="training", config=config,model_dir="\\Mask-RCNN-TF2\\ICE_SHIP\\logs")
+    model = modellib.MaskRCNN(mode="training", config=config,model_dir=ROOT_DIR+"\\ICE_SHIP")
     
     # #if coco
-    weights_path = "mask_rcnn_coco.h5" 
+    weights_path = ROOT_DIR+"\\mask_rcnn_coco.h5" 
     model.load_weights(weights_path, by_name=True, exclude=[
             "mrcnn_class_logits", "mrcnn_bbox_fc",
             "mrcnn_bbox", "mrcnn_mask"])
@@ -399,6 +414,6 @@ if __name__ == '__main__':
     # weights_path = model.find_last() #uncomment if need to re-start.
     # model.load_weights(weights_path, by_name=True) #uncomment if need to re-start.
     
-    dataset_path=os.path.abspath("")+"\\ICE_SHIP\\data\\dataset"
+    dataset_path=ROOT_DIR+"\\ICE_SHIP\\data\\dataset"
     train(model)
    
