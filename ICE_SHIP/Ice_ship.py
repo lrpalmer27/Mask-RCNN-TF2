@@ -68,13 +68,13 @@ class IceConfig(Config):
 
     # We use a GPU with 12GB memory, which can fit two images.
     # Adjust down if you use a smaller GPU.
-    IMAGES_PER_GPU = 2
+    IMAGES_PER_GPU = 1
 
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1 + 1 # Background + Ice + Ship
 
     # Number of training steps per epoch
-    STEPS_PER_EPOCH = 100
+    STEPS_PER_EPOCH = 100 #100
 
     # Skip detections with < 90% confidence
     DETECTION_MIN_CONFIDENCE = 0.9
@@ -225,7 +225,7 @@ def train(model):
     print("Training network heads")
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=2,
+                epochs=30,
                 layers='heads')
 
 
@@ -411,9 +411,12 @@ if __name__ == '__main__':
             "mrcnn_bbox", "mrcnn_mask"])
     
     # #re-starting
-    # weights_path = model.find_last() #uncomment if need to re-start.
-    # model.load_weights(weights_path, by_name=True) #uncomment if need to re-start.
+    # weights_path = model.find_last() #uncomment if need to re-start after pausing training.
+    # model.load_weights(weights_path, by_name=True) #uncomment if need to re-start after pausing training.
     
     dataset_path=ROOT_DIR+"\\ICE_SHIP\\data\\dataset"
     train(model)
+    
+    model_path = ROOT_DIR+'\\ICE_SHIP\\Ice_Ship_mask_rcnn_trained.h5'
+    model.keras_model.save_weights(model_path)
    
