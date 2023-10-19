@@ -36,7 +36,7 @@ model.load_weights(filepath=ROOT_DIR+"\\Ice_Ship_mask_rcnn_trained.h5",
 
 # load the input image, convert it from BGR to RGB channel
 Test_Dir=os.listdir(ROOT_DIR+"\\data\\test_images") #lists the kangaroo test image dir
-randomImg=Test_Dir[random.randint(0,len(Test_Dir))]
+randomImg=Test_Dir[random.randint(0,len(Test_Dir)-1)]
 image = cv2.imread(ROOT_DIR+"\\data\\test_images\\"+randomImg) #picks a random image in the kangaroo test image dir.
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
