@@ -59,7 +59,6 @@ kiwisolver==1.4.5
 libclang==16.0.6
 Markdown==3.4.4
 MarkupSafe==2.1.3
-mask-rcnn-tf2==1.0
 matplotlib==3.5.3
 matplotlib-inline==0.1.6
 mistune==3.0.2
