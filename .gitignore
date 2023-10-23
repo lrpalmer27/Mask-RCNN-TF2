@@ -60,3 +60,5 @@ ENV/
 # videos
 *.mkv
 
+#kaggle .npz datasets
+*.npz
