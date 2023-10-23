@@ -416,9 +416,9 @@ if __name__ == '__main__':
     # weights_path = model.find_last() #uncomment if need to re-start after pausing training.
     # model.load_weights(weights_path, by_name=True) #uncomment if need to re-start after pausing training.
     
-    dataset_path=ROOT_DIR+"\\ICE_SHIP\\data\\dataset"
+    dataset_path=ROOT_DIR+"\\ICE_SHIP\\data\\NRC_dataset\\"
     train(model)
     
-    model_path = ROOT_DIR+'\\ICE_SHIP\\Ice_Ship_mask_rcnn_trained.h5'
+    model_path = ROOT_DIR+'\\ICE_SHIP\\data\\NRC_dataset\\Ice_Ship_mask_rcnn_trained.h5'
     model.keras_model.save_weights(model_path)
    

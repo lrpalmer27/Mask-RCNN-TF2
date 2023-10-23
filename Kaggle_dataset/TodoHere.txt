@@ -1,0 +1,4 @@
+We need to make a new model that takes this data and trains a model, this data is from a sentiel-4 satellite (i think) and is sort of like quasi-images not really pictures. 
+Some of these satelites use SAR; which this may be that. Unsure really where the data comes from; need more exploiration.
+
+Data comes from here: https://www.kaggle.com/datasets/saurabhbagchi/ship-and-iceberg-images/
