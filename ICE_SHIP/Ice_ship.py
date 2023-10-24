@@ -416,9 +416,15 @@ if __name__ == '__main__':
     # weights_path = model.find_last() #uncomment if need to re-start after pausing training.
     # model.load_weights(weights_path, by_name=True) #uncomment if need to re-start after pausing training.
     
-    dataset_path=ROOT_DIR+"\\ICE_SHIP\\data\\NRC_data_multi_stage_big\\"
-    train(model)
     
-    model_path = ROOT_DIR+'\\ICE_SHIP\\data\\NRC_data_multi_stage_big\\Ice_Ship_mask_rcnn_trained.h5'
+    ## this is for training the big model only
+    dataset_path=ROOT_DIR+"\\ICE_SHIP\\data\\NRC_data_multi_stage_big\\"
+    model_path = ROOT_DIR+'\\ICE_SHIP\\data\\NRC_data_multi_stage_big\\mrcnn_big.h5'
+    
+    ## this is for training the small model only
+    dataset_path=ROOT_DIR+"\\ICE_SHIP\\data\\NRC_data_multi_stage_small\\"
+    model_path = ROOT_DIR+'\\ICE_SHIP\\data\\NRC_data_multi_stage_small\\mrcnn_small.h5'
+    
+    train(model)  
     model.keras_model.save_weights(model_path)
    
