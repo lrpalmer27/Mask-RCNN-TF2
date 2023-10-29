@@ -31,13 +31,13 @@ model = mrcnn.model.MaskRCNN(mode="inference",
                              model_dir=os.getcwd())
 
 # Load the weights into the model.
-model.load_weights(filepath=ROOT_DIR+"\\data\\NRC_dataset\\Ice_Ship_mask_rcnn_trained.h5", 
+model.load_weights(filepath=ROOT_DIR+"\\data\\NRC_data_multi_stage_big\\mrcnn_big.h5", 
                    by_name=True)
 
 # load the input image, convert it from BGR to RGB channel
-Test_Dir=os.listdir(ROOT_DIR+"\\data\\NRC_dataset\\test_images") #lists the kangaroo test image dir
+Test_Dir=os.listdir(ROOT_DIR+"\\data\\NRC_data_multi_stage_big\\test\\") #lists the kangaroo test image dir
 randomImg=Test_Dir[random.randint(0,len(Test_Dir)-1)]
-image = cv2.imread(ROOT_DIR+"\\data\\NRC_dataset\\test_images\\"+randomImg) #picks a random image in the kangaroo test image dir.
+image = cv2.imread(ROOT_DIR+"\\data\\NRC_data_multi_stage_big\\test\\"+randomImg) #picks a random image in the kangaroo test image dir.
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 # Perform a forward pass of the network to obtain the results

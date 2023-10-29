@@ -1,33 +1,33 @@
-"""
-***********Based on the balloon samples**********
+# """
+# ***********Based on the balloon samples**********
 
-Mask R-CNN
-Train on the toy Ice dataset and implement color splash effect.
+# Mask R-CNN
+# Train on the toy Ice dataset and implement color splash effect.
 
-Copyright (c) 2018 Matterport, Inc.
-Licensed under the MIT License (see LICENSE for details)
-Written by Waleed Abdulla
+# Copyright (c) 2018 Matterport, Inc.
+# Licensed under the MIT License (see LICENSE for details)
+# Written by Waleed Abdulla
 
-------------------------------------------------------------
+# ------------------------------------------------------------
 
-Usage: import the module (see Jupyter notebooks for examples), or run from
-       the command line as such:
+# Usage: import the module (see Jupyter notebooks for examples), or run from
+#        the command line as such:
 
-    # Train a new model starting from pre-trained COCO weights
-    python3 Ice_ship.py train --dataset=/path/to/Ice/dataset --weights=coco
+#     # Train a new model starting from pre-trained COCO weights
+#     python3 Ice_ship.py train --dataset=/path/to/Ice/dataset --weights=coco
 
-    # Resume training a model that you had trained earlier
-    python3 Ice_ship.py train --dataset=/path/to/Ice/dataset --weights=last
+#     # Resume training a model that you had trained earlier
+#     python3 Ice_ship.py train --dataset=/path/to/Ice/dataset --weights=last
 
-    # Train a new model starting from ImageNet weights
-    python3 Ice_ship.py train --dataset=/path/to/Ice/dataset --weights=imagenet
+#     # Train a new model starting from ImageNet weights
+#     python3 Ice_ship.py train --dataset=/path/to/Ice/dataset --weights=imagenet
 
-    # Apply color splash to an image
-    python3 Ice_ship.py splash --weights=/path/to/weights/file.h5 --image=<URL or path to file>
+#     # Apply color splash to an image
+#     python3 Ice_ship.py splash --weights=/path/to/weights/file.h5 --image=<URL or path to file>
 
-    # Apply color splash to video using the last weights you trained
-    python3 Ice_ship.py splash --weights=last --video=<URL or path to file>
-"""
+#     # Apply color splash to video using the last weights you trained
+#     python3 Ice_ship.py splash --weights=last --video=<URL or path to file>
+# """
 
 import os
 import sys
@@ -68,7 +68,7 @@ class IceConfig(Config):
 
     # We use a GPU with 12GB memory, which can fit two images.
     # Adjust down if you use a smaller GPU.
-    IMAGES_PER_GPU = 1
+    IMAGES_PER_GPU = 2
     
     # IMAGES_PER_GPU = 2
 
@@ -76,19 +76,14 @@ class IceConfig(Config):
     NUM_CLASSES = 1 + 1 + 1 # Background + Ice + Ship
 
     # Number of training steps per epoch
-    STEPS_PER_EPOCH = 150 #100
+    STEPS_PER_EPOCH = 100 #100
 
     # Skip detections with < 90% confidence
     DETECTION_MIN_CONFIDENCE = 0.9
     
     #since our images are huge
-    # IMAGE_MAX_DIM=6096
-    # IMAGE_MIN_DIM=1200
-    # IMAGE_MAX_DIM=4096
-    # IMAGE_MIN_DIM=2730
     IMAGE_MAX_DIM=1024
-    IMAGE_MIN_DIM=1024
-
+    IMAGE_MIN_DIM=150 
 
 ############################################################
 #  Dataset
@@ -227,7 +222,7 @@ def train(model):
     print("Training network heads")
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=50,
+                epochs=2,
                 layers='heads')
 
 
@@ -422,8 +417,8 @@ if __name__ == '__main__':
     model_path = ROOT_DIR+'\\ICE_SHIP\\data\\NRC_data_multi_stage_big\\mrcnn_big.h5'
     
     ## this is for training the small model only
-    dataset_path=ROOT_DIR+"\\ICE_SHIP\\data\\NRC_data_multi_stage_small\\"
-    model_path = ROOT_DIR+'\\ICE_SHIP\\data\\NRC_data_multi_stage_small\\mrcnn_small.h5'
+    # dataset_path=ROOT_DIR+"\\ICE_SHIP\\data\\NRC_data_multi_stage_small\\"
+    # model_path = ROOT_DIR+'\\ICE_SHIP\\data\\NRC_data_multi_stage_small\\mrcnn_small.h5'
     
     train(model)  
     model.keras_model.save_weights(model_path)
