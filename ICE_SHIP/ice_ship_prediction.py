@@ -9,8 +9,8 @@ import random
 # load the class label names from disk, one label per line
 # CLASS_NAMES = open("coco_labels.txt").read().strip().split("\n")
 
+TestDir="\\data\\test_imgs\\"
 ROOT_DIR=os.path.dirname(os.path.abspath(__file__))
-
 CLASS_NAMES = ['BG', 'Ice','Ship']
 
 class SimpleConfig(mrcnn.config.Config):
@@ -35,9 +35,9 @@ model.load_weights(filepath=ROOT_DIR+"\\data\\NRC_data_multi_stage_big\\mrcnn_bi
                    by_name=True)
 
 # load the input image, convert it from BGR to RGB channel
-Test_Dir=os.listdir(ROOT_DIR+"\\data\\NRC_data_multi_stage_big\\test\\") #lists the kangaroo test image dir
+Test_Dir=os.listdir(ROOT_DIR+ TestDir) #lists the kangaroo test image dir
 randomImg=Test_Dir[random.randint(0,len(Test_Dir)-1)]
-image = cv2.imread(ROOT_DIR+"\\data\\NRC_data_multi_stage_big\\test\\"+randomImg) #picks a random image in the kangaroo test image dir.
+image = cv2.imread(ROOT_DIR+TestDir+randomImg) #picks a random image in the kangaroo test image dir.
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 # Perform a forward pass of the network to obtain the results
