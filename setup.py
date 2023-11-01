@@ -6,15 +6,19 @@ The build/compilations setup
 """
 import pip
 import logging
-import pkg_resources
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+# import pkg_resources
+import importlib
+from distutils.core import setup
+
+# try:
+#     from setuptools import setup
+# except ImportError:
+#     from distutils.core import setup
 
 
 def _parse_requirements(file_path):
-    pip_ver = pkg_resources.get_distribution('pip').version
+    # pip_ver = pkg_resources.get_distribution('pip').version
+    pip_ver = importlib.import_module('pip').__version__
     pip_version = list(map(int, pip_ver.split('.')[:2]))
     if pip_version >= [6, 0]:
         raw = pip.req.parse_requirements(file_path,
@@ -33,7 +37,7 @@ except Exception:
 
 setup(
     name='mask-rcnn-tf2',
-    version='1.5',
+    version='1.5.0',
     url='https://github.com/lrpalmer27/Mask-RCNN-TF2',
     author='Logan Palmer',
     author_email='lrpalmer@mun.ca',
