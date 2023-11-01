@@ -1,0 +1,5 @@
+tensorflow
+scikit-image
+opencv-python
+numpy
+IPython[all]

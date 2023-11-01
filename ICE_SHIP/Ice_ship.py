@@ -32,10 +32,8 @@
 import os
 import sys
 import json
-import datetime
 import numpy as np
 import skimage.draw
-import warnings
 # warnings.filterwarnings('ignore')
 
 # Root directory of the project
@@ -83,7 +81,7 @@ class IceConfig(Config):
     
     #since our images are huge
     IMAGE_MAX_DIM=1024
-    IMAGE_MIN_DIM=150 
+    IMAGE_MIN_DIM=1024 
 
 ############################################################
 #  Dataset
