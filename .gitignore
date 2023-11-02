@@ -58,6 +58,7 @@ venv/
 ENV/
 .py372_alt_venv
 .py379_venv
+.py379_venv1
 .venv
 
 # videos

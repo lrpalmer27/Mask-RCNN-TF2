@@ -17,18 +17,28 @@ from collections import OrderedDict
 import multiprocessing
 import numpy as np
 import tensorflow as tf
-import keras
-import keras.backend as K
-import keras.layers as KL
-import keras.engine as KE
-import keras.models as KM
+tf.compat.v1.disable_eager_execution()
+
+# import keras
+# import keras.backend as K
+# import keras.layers as KL
+# import keras.engine as KE
+# import keras.models as KM
+
+import tensorflow.python.keras.backend as K
+import tensorflow.python.keras.layers as KL
+import tensorflow.python.keras.engine as KE
+import tensorflow.python.keras.models as KM
+
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Conv2D, Flatten, Dense
 
 from mrcnn import utils
 
 # Requires TensorFlow 1.3+ and Keras 2.0.8+.
 from distutils.version import LooseVersion
-assert LooseVersion(tf.__version__) >= LooseVersion("1.3")
-assert LooseVersion(keras.__version__) >= LooseVersion('2.0.8')
+assert LooseVersion(tf.__version__) >= LooseVersion("2.0")
+# assert LooseVersion(keras.__version__) >= LooseVersion('2.0.8')
 
 
 ############################################################
@@ -108,17 +118,17 @@ def identity_block(input_tensor, kernel_size, filters, stage, block,
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
 
-    x = KL.Conv2D(nb_filter1, (1, 1), name=conv_name_base + '2a',
+    x = Conv2D(nb_filter1, (1, 1), name=conv_name_base + '2a',
                   use_bias=use_bias)(input_tensor)
     x = BatchNorm(name=bn_name_base + '2a')(x, training=train_bn)
     x = KL.Activation('relu')(x)
 
-    x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same',
+    x = Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same',
                   name=conv_name_base + '2b', use_bias=use_bias)(x)
     x = BatchNorm(name=bn_name_base + '2b')(x, training=train_bn)
     x = KL.Activation('relu')(x)
 
-    x = KL.Conv2D(nb_filter3, (1, 1), name=conv_name_base + '2c',
+    x = Conv2D(nb_filter3, (1, 1), name=conv_name_base + '2c',
                   use_bias=use_bias)(x)
     x = BatchNorm(name=bn_name_base + '2c')(x, training=train_bn)
 
@@ -145,21 +155,21 @@ def conv_block(input_tensor, kernel_size, filters, stage, block,
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
 
-    x = KL.Conv2D(nb_filter1, (1, 1), strides=strides,
+    x = Conv2D(nb_filter1, (1, 1), strides=strides,
                   name=conv_name_base + '2a', use_bias=use_bias)(input_tensor)
     x = BatchNorm(name=bn_name_base + '2a')(x, training=train_bn)
     x = KL.Activation('relu')(x)
 
-    x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same',
+    x = Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same',
                   name=conv_name_base + '2b', use_bias=use_bias)(x)
     x = BatchNorm(name=bn_name_base + '2b')(x, training=train_bn)
     x = KL.Activation('relu')(x)
 
-    x = KL.Conv2D(nb_filter3, (1, 1), name=conv_name_base +
+    x = Conv2D(nb_filter3, (1, 1), name=conv_name_base +
                   '2c', use_bias=use_bias)(x)
     x = BatchNorm(name=bn_name_base + '2c')(x, training=train_bn)
 
-    shortcut = KL.Conv2D(nb_filter3, (1, 1), strides=strides,
+    shortcut = Conv2D(nb_filter3, (1, 1), strides=strides,
                          name=conv_name_base + '1', use_bias=use_bias)(input_tensor)
     shortcut = BatchNorm(name=bn_name_base + '1')(shortcut, training=train_bn)
 
@@ -176,8 +186,9 @@ def resnet_graph(input_image, architecture, stage5=False, train_bn=True):
     """
     assert architecture in ["resnet50", "resnet101"]
     # Stage 1
+    # x = KL.ZeroPadding2D((3, 3))(input_image)
     x = KL.ZeroPadding2D((3, 3))(input_image)
-    x = KL.Conv2D(64, (7, 7), strides=(2, 2), name='conv1', use_bias=True)(x)
+    x = Conv2D(64, (7, 7), strides=(2, 2), name='conv1', use_bias=True)(x)
     x = BatchNorm(name='bn_conv1')(x, training=train_bn)
     x = KL.Activation('relu')(x)
     C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding="same")(x)
@@ -252,7 +263,7 @@ def clip_boxes_graph(boxes, window):
     return clipped
 
 
-class ProposalLayer(KE.Layer):
+class ProposalLayer(KL.Layer):
     """Receives anchor scores and selects a subset to pass as proposals
     to the second stage. Filtering is done based on anchor scores and
     non-max suppression to remove overlaps. It also applies bounding
@@ -341,7 +352,7 @@ def log2_graph(x):
     return tf.math.log(x) / tf.math.log(2.0)
 
 
-class PyramidROIAlign(KE.Layer):
+class PyramidROIAlign(KL.Layer):
     """Implements ROI Pooling on multiple levels of the feature pyramid.
 
     Params:
@@ -619,7 +630,7 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config)
     return rois, roi_gt_class_ids, deltas, masks
 
 
-class DetectionTargetLayer(KE.Layer):
+class DetectionTargetLayer(KL.Layer):
     """Subsamples proposals and generates target box refinement, class_ids,
     and masks for each.
 
@@ -779,7 +790,7 @@ def refine_detections_graph(rois, probs, deltas, window, config):
     return detections
 
 
-class DetectionLayer(KE.Layer):
+class DetectionLayer(KL.Layer):
     """Takes classified proposal boxes and their bounding box deltas and
     returns the final detection boxes.
 
@@ -844,12 +855,12 @@ def rpn_graph(feature_map, anchors_per_location, anchor_stride):
     # TODO: check if stride of 2 causes alignment issues if the feature map
     # is not even.
     # Shared convolutional base of the RPN
-    shared = KL.Conv2D(512, (3, 3), padding='same', activation='relu',
+    shared = Conv2D(512, (3, 3), padding='same', activation='relu',
                        strides=anchor_stride,
                        name='rpn_conv_shared')(feature_map)
 
     # Anchor Score. [batch, height, width, anchors per location * 2].
-    x = KL.Conv2D(2 * anchors_per_location, (1, 1), padding='valid',
+    x = Conv2D(2 * anchors_per_location, (1, 1), padding='valid',
                   activation='linear', name='rpn_class_raw')(shared)
 
     # Reshape to [batch, anchors, 2]
@@ -862,7 +873,7 @@ def rpn_graph(feature_map, anchors_per_location, anchor_stride):
 
     # Bounding box refinement. [batch, H, W, anchors per location * depth]
     # where depth is [x, y, log(w), log(h)]
-    x = KL.Conv2D(anchors_per_location * 4, (1, 1), padding="valid",
+    x = Conv2D(anchors_per_location * 4, (1, 1), padding="valid",
                   activation='linear', name='rpn_bbox_pred')(shared)
 
     # Reshape to [batch, anchors, 4]
@@ -924,11 +935,11 @@ def fpn_classifier_graph(rois, feature_maps, image_meta,
     x = PyramidROIAlign([pool_size, pool_size],
                         name="roi_align_classifier")([rois, image_meta] + feature_maps)
     # Two 1024 FC layers (implemented with Conv2D for consistency)
-    x = KL.TimeDistributed(KL.Conv2D(fc_layers_size, (pool_size, pool_size), padding="valid"),
+    x = KL.TimeDistributed(Conv2D(fc_layers_size, (pool_size, pool_size), padding="valid"),
                            name="mrcnn_class_conv1")(x)
     x = KL.TimeDistributed(BatchNorm(), name='mrcnn_class_bn1')(x, training=train_bn)
     x = KL.Activation('relu')(x)
-    x = KL.TimeDistributed(KL.Conv2D(fc_layers_size, (1, 1)),
+    x = KL.TimeDistributed(Conv2D(fc_layers_size, (1, 1)),
                            name="mrcnn_class_conv2")(x)
     x = KL.TimeDistributed(BatchNorm(), name='mrcnn_class_bn2')(x, training=train_bn)
     x = KL.Activation('relu')(x)
@@ -937,18 +948,19 @@ def fpn_classifier_graph(rois, feature_maps, image_meta,
                        name="pool_squeeze")(x)
 
     # Classifier head
-    mrcnn_class_logits = KL.TimeDistributed(KL.Dense(num_classes),
+    mrcnn_class_logits = KL.TimeDistributed(Dense(num_classes),
                                             name='mrcnn_class_logits')(shared)
     mrcnn_probs = KL.TimeDistributed(KL.Activation("softmax"),
                                      name="mrcnn_class")(mrcnn_class_logits)
 
     # BBox head
     # [batch, num_rois, NUM_CLASSES * (dy, dx, log(dh), log(dw))]
-    x = KL.TimeDistributed(KL.Dense(num_classes * 4, activation='linear'),
+    x = KL.TimeDistributed(Dense(num_classes * 4, activation='linear'),
                            name='mrcnn_bbox_fc')(shared)
     # Reshape to [batch, num_rois, NUM_CLASSES, (dy, dx, log(dh), log(dw))]
     s = K.int_shape(x)
-    mrcnn_bbox = KL.Reshape((s[1], num_classes, 4), name="mrcnn_bbox")(x)
+    # mrcnn_bbox = KL.Reshape((s[1], num_classes, 4), name="mrcnn_bbox")(x)
+    mrcnn_bbox = KL.Reshape((-1, num_classes, 4), name="mrcnn_bbox")(x) #fix from:https://github.com/matterport/Mask_RCNN/issues/1070 
 
     return mrcnn_class_logits, mrcnn_probs, mrcnn_bbox
 
@@ -974,25 +986,25 @@ def build_fpn_mask_graph(rois, feature_maps, image_meta,
                         name="roi_align_mask")([rois, image_meta] + feature_maps)
 
     # Conv layers
-    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding="same"),
+    x = KL.TimeDistributed(Conv2D(256, (3, 3), padding="same"),
                            name="mrcnn_mask_conv1")(x)
     x = KL.TimeDistributed(BatchNorm(),
                            name='mrcnn_mask_bn1')(x, training=train_bn)
     x = KL.Activation('relu')(x)
 
-    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding="same"),
+    x = KL.TimeDistributed(Conv2D(256, (3, 3), padding="same"),
                            name="mrcnn_mask_conv2")(x)
     x = KL.TimeDistributed(BatchNorm(),
                            name='mrcnn_mask_bn2')(x, training=train_bn)
     x = KL.Activation('relu')(x)
 
-    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding="same"),
+    x = KL.TimeDistributed(Conv2D(256, (3, 3), padding="same"),
                            name="mrcnn_mask_conv3")(x)
     x = KL.TimeDistributed(BatchNorm(),
                            name='mrcnn_mask_bn3')(x, training=train_bn)
     x = KL.Activation('relu')(x)
 
-    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding="same"),
+    x = KL.TimeDistributed(Conv2D(256, (3, 3), padding="same"),
                            name="mrcnn_mask_conv4")(x)
     x = KL.TimeDistributed(BatchNorm(),
                            name='mrcnn_mask_bn4')(x, training=train_bn)
@@ -1000,7 +1012,7 @@ def build_fpn_mask_graph(rois, feature_maps, image_meta,
 
     x = KL.TimeDistributed(KL.Conv2DTranspose(256, (2, 2), strides=2, activation="relu"),
                            name="mrcnn_mask_deconv")(x)
-    x = KL.TimeDistributed(KL.Conv2D(num_classes, (1, 1), strides=1, activation="sigmoid"),
+    x = KL.TimeDistributed(Conv2D(num_classes, (1, 1), strides=1, activation="sigmoid"),
                            name="mrcnn_mask")(x)
     return x
 
@@ -1812,6 +1824,18 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
             if error_count > 5:
                 raise
 
+###implementation from: https://stackoverflow.com/questions/65073434/why-keras-lambda-layer-cause-problem-mask-rcnn
+class AnchorsLayer(KL.Layer):
+    def __init__(self, anchors, name="anchors", **kwargs):
+        super(AnchorsLayer, self).__init__(name=name, **kwargs)
+        self.anchors = tf.Variable(anchors)
+
+    def call(self, dummy):
+        return self.anchors
+
+    def get_config(self):
+        config = super(AnchorsLayer, self).get_config()
+        return config
 
 ############################################################
 #  MaskRCNN Class
@@ -1872,8 +1896,8 @@ class MaskRCNN():
             input_gt_boxes = KL.Input(
                 shape=[None, 4], name="input_gt_boxes", dtype=tf.float32)
             # Normalize coordinates
-            gt_boxes = KL.Lambda(lambda x: norm_boxes_graph(
-                x, K.shape(input_image)[1:3]))(input_gt_boxes)
+            # gt_boxes = KL.Lambda(lambda x: norm_boxes_graph(x, K.shape(input_image)[1:3]))(input_gt_boxes)
+            gt_boxes = KL.Lambda(lambda x: norm_boxes_graph(x, tf.keras.backend.shape(input_image)[1:3]))(input_gt_boxes)
             # 3. GT Masks (zero padded)
             # [batch, height, width, MAX_GT_INSTANCES]
             if config.USE_MINI_MASK:
@@ -1901,21 +1925,21 @@ class MaskRCNN():
                                              stage5=True, train_bn=config.TRAIN_BN)
         # Top-down Layers
         # TODO: add assert to varify feature map sizes match what's in config
-        P5 = KL.Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (1, 1), name='fpn_c5p5')(C5)
+        P5 = Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (1, 1), name='fpn_c5p5')(C5)
         P4 = KL.Add(name="fpn_p4add")([
             KL.UpSampling2D(size=(2, 2), name="fpn_p5upsampled")(P5),
-            KL.Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (1, 1), name='fpn_c4p4')(C4)])
+            Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (1, 1), name='fpn_c4p4')(C4)])
         P3 = KL.Add(name="fpn_p3add")([
             KL.UpSampling2D(size=(2, 2), name="fpn_p4upsampled")(P4),
-            KL.Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (1, 1), name='fpn_c3p3')(C3)])
+            Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (1, 1), name='fpn_c3p3')(C3)])
         P2 = KL.Add(name="fpn_p2add")([
             KL.UpSampling2D(size=(2, 2), name="fpn_p3upsampled")(P3),
-            KL.Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (1, 1), name='fpn_c2p2')(C2)])
+            Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (1, 1), name='fpn_c2p2')(C2)])
         # Attach 3x3 conv to all P layers to get the final feature maps.
-        P2 = KL.Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (3, 3), padding="SAME", name="fpn_p2")(P2)
-        P3 = KL.Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (3, 3), padding="SAME", name="fpn_p3")(P3)
-        P4 = KL.Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (3, 3), padding="SAME", name="fpn_p4")(P4)
-        P5 = KL.Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (3, 3), padding="SAME", name="fpn_p5")(P5)
+        P2 = Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (3, 3), padding="SAME", name="fpn_p2")(P2)
+        P3 = Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (3, 3), padding="SAME", name="fpn_p3")(P3)
+        P4 = Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (3, 3), padding="SAME", name="fpn_p4")(P4)
+        P5 = Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (3, 3), padding="SAME", name="fpn_p5")(P5)
         # P6 is used for the 5th anchor scale in RPN. Generated by
         # subsampling from P5 with stride of 2.
         P6 = KL.MaxPooling2D(pool_size=(1, 1), strides=2, name="fpn_p6")(P5)
@@ -1931,7 +1955,8 @@ class MaskRCNN():
             # TODO: can this be optimized to avoid duplicating the anchors?
             anchors = np.broadcast_to(anchors, (config.BATCH_SIZE,) + anchors.shape)
             # A hack to get around Keras's bad support for constants
-            anchors = KL.Lambda(lambda x: tf.Variable(anchors), name="anchors")(input_image)
+            # anchors = KL.Lambda(lambda x: tf.Variable(anchors), name="anchors")(input_image)
+            anchors = AnchorsLayer(anchors, name="anchors")(input_image)
         else:
             anchors = input_anchors
 
@@ -2099,22 +2124,26 @@ class MaskRCNN():
         exclude: list of layer names to exclude
         """
         import h5py
-        # Conditional import to support versions of Keras before 2.2
-        # TODO: remove in about 6 months (end of 2018)
-        try:
-            from keras.engine import saving
-        except ImportError:
-            # Keras before 2.2 used the 'topology' namespace.
-            from keras.engine import topology as saving
+        # # Conditional import to support versions of Keras before 2.2
+        # # TODO: remove in about 6 months (end of 2018)
+        # try:
+        #     from keras.engine import saving
+        # except ImportError:
+        #     # Keras before 2.2 used the 'topology' namespace.
+        #     from keras.engine import topology as saving
 
-        if exclude:
-            by_name = True
+        # if exclude:
+        #     by_name = True
 
         if h5py is None:
             raise ImportError('`load_weights` requires h5py.')
+        
         f = h5py.File(filepath, mode='r')
+        
         if 'layer_names' not in f.attrs and 'model_weights' in f:
             f = f['model_weights']
+        
+        from tensorflow.python.keras.saving import hdf5_format
 
         # In multi-GPU training, we wrap the model. Get layers
         # of the inner model because they have the weights.
@@ -2127,9 +2156,11 @@ class MaskRCNN():
             layers = filter(lambda l: l.name not in exclude, layers)
 
         if by_name:
-            saving.load_weights_from_hdf5_group_by_name(f, layers)
+            # saving.load_weights_from_hdf5_group_by_name(f, layers)
+            hdf5_format.load_weights_from_hdf5_group_by_name(f, layers)
         else:
-            saving.load_weights_from_hdf5_group(f, layers)
+            # saving.load_weights_from_hdf5_group(f, layers)
+            hdf5_format.load_weights_from_hdf5_group(f, layers)
         if hasattr(f, 'close'):
             f.close()
 
@@ -2156,15 +2187,15 @@ class MaskRCNN():
         """
         self.keras_model.metrics_tensors = []
         # Optimizer object
-        optimizer = keras.optimizers.SGD(
+        optimizer = tf.keras.optimizers.SGD(
             lr=learning_rate, momentum=momentum,
             clipnorm=self.config.GRADIENT_CLIP_NORM)
         # Add Losses
+        
         # First, clear previously set losses to avoid duplication
-        self.keras_model._losses = []
-        self.keras_model._per_input_losses = {}
-        loss_names = [
-            "rpn_class_loss",  "rpn_bbox_loss",
+        # self.keras_model._losses = []
+        # self.keras_model._per_input_losses = {}
+        loss_names = ["rpn_class_loss",  "rpn_bbox_loss",
             "mrcnn_class_loss", "mrcnn_bbox_loss", "mrcnn_mask_loss"]
         for name in loss_names:
             layer = self.keras_model.get_layer(name)
@@ -2173,8 +2204,17 @@ class MaskRCNN():
             # print(str(self.keras_model.losses))
             # print(str(layer.output))
             # print("AAAAAAAAAAAA ", str(layer.output) in str(self.keras_model.losses))
-            loss = tf.reduce_mean(layer.output, keepdims=True) * self.config.LOSS_WEIGHTS.get(name, 1.)
+            
+            # loss = tf.reduce_mean(layer.output, keepdims=True) * self.config.LOSS_WEIGHTS.get(name, 1.)
+            loss_orig = tf.reduce_mean(layer.output, keepdims=True) * self.config.LOSS_WEIGHTS.get(name, 1.)
+            loss = tf.reduce_mean(input_tensor=layer.output, keepdims=True) * self.config.LOSS_WEIGHTS.get(name, 1.)
+            
+            print("ref",self.config.LOSS_WEIGHTS.get(name, 1.))
+            print("ref",loss_orig)
+            print("ref",loss)
+            
             self.keras_model.add_loss(loss)
+
             # tf.cond(tf.constant(layer.output in self.keras_model.losses), lambda: 1, lambda: self.keras_model.add_loss(tf.reduce_mean(layer.output, keepdims=True) * self.config.LOSS_WEIGHTS.get(name, 1.)))
             # tf.cond(tf.constant(layer.output in self.keras_model.losses), lambda: 1, lambda: self.keras_model.add_loss(tf.reduce_mean(layer.output, keepdims=True) * self.config.LOSS_WEIGHTS.get(name, 1.)))
             #if layer.output in self.keras_model.losses:
@@ -2187,7 +2227,7 @@ class MaskRCNN():
         # Add L2 Regularization
         # Skip gamma and beta weights of batch normalization layers.
         reg_losses = [
-            keras.regularizers.l2(self.config.WEIGHT_DECAY)(w) / tf.cast(tf.size(w), tf.float32)
+            tf.keras.regularizers.l2(self.config.WEIGHT_DECAY)(w) / tf.cast(tf.size(w), tf.float32)
             for w in self.keras_model.trainable_weights
             if 'gamma' not in w.name and 'beta' not in w.name]
         self.keras_model.add_loss(tf.add_n(reg_losses))
@@ -2348,9 +2388,9 @@ class MaskRCNN():
 
         # Callbacks
         callbacks = [
-            keras.callbacks.TensorBoard(log_dir=self.log_dir,
+            tf.keras.callbacks.TensorBoard(log_dir=self.log_dir,
                                         histogram_freq=0, write_graph=True, write_images=False),
-            keras.callbacks.ModelCheckpoint(self.checkpoint_path,
+            tf.keras.callbacks.ModelCheckpoint(self.checkpoint_path,
                                             verbose=0, save_weights_only=True),
         ]
 
@@ -2367,7 +2407,7 @@ class MaskRCNN():
         # Work-around for Windows: Keras fails on Windows when using
         # multiprocessing workers. See discussion here:
         # https://github.com/matterport/Mask_RCNN/issues/13#issuecomment-353124009
-        if os.name is 'nt':
+        if os.name == 'nt':
             workers = 0
         else:
             workers = multiprocessing.cpu_count()
