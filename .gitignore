@@ -57,6 +57,7 @@ pip-delete-this-directory.txt
 venv/
 ENV/
 .py372_alt_venv
+.py379_venv
 .venv
 
 # videos
