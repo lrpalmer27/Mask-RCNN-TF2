@@ -60,7 +60,7 @@ ENV/
 .py379_venv
 .py379_venv1
 .venv
-
+.*
 # videos
 *.mkv
 
